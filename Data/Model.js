@@ -11,7 +11,10 @@ const Game = db.define(
 const User = db.define(
   'users',
   {
-    name:Sequelize.STRING,
+    name:{
+      type: Sequelize.STRING,
+      allowNull: false
+    },
     password: Sequelize.STRING,
     name: Sequelize.STRING,
     word: Sequelize.STRING,
