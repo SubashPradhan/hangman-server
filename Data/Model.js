@@ -1,8 +1,8 @@
 const Sequelize = require('sequelize')
 const db = require('../db')
 
-const Group = db.define(
-  'groups',
+const Game = db.define(
+  'game',
   {
     name: Sequelize.STRING,
     status: Sequelize.STRING
@@ -20,10 +20,10 @@ const User = db.define(
   }
 )  
 
-User.belongsTo(Group)
-Group.hasMany(User) 
+User.belongsTo(Game)
+Game.hasMany(User) 
 
 module.exports = {
-  Group,
- User
+  Game,
+  User
 }
