@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const { toJWT, toData } = require('./jwt')
 const { Router } = require('express')
 const { Game, User } = require('./Model')
+const { verifyToken } = require('./verifyToken')
 const router = new Router
 
 router.get('/stream',
@@ -20,7 +21,7 @@ router.get('/stream',
 
 router.post('/user',
   async (request, response) => {
-    const{
+    const {
       name,
       password,
       word,
@@ -32,69 +33,48 @@ router.post('/user',
 
     const entity = await User.create({
       name,
-      password,
+      password: bcrypt.hashSync(password, 10),
       word,
       correctWord,
       incorrectWord
     })
 
-    console.log("entity", entity)
-    const games = await Game.findAll({
-      include: [User]
-    })
-    const data = JSON.stringify(games)
-  
-    stream.updateInit(data)
-    stream.send(data)
-
-    response.send(entity)
-  }
-)
+    response.json(entity)
+  })
 
 router.post('/login',
-async (request, response) => {
-  //request.body.email !== '' && request.body.password !== ''
-  if (request.body.email, request.body.password !== '') {
-    response.status(400).send({
-      message: 'Please supply a valid email and password'
-    })
-  }
-  else {
-    User
-      .findOne({
-        where: {
-          email: request.body.email,
-        }
+  async (request, response) => {
+    if (!request.body.name || !request.body.password) {
+      response.status(400).send({
+        message: 'Please supply a valid name and password'
       })
-      await (entity => {
-        if (!entity) {
-          response.status(400).send({
-            message: 'User with that email does not exist'
-          })
-        }
-        if (bcrypt.compareSync(request.body.password, entity.password)) {
-          response.send({
-            jwt: toJWT({ userId: entity.id })
-          })
-        }
-        else {
-          response.status(400).send({
-            message: 'Password was incorrect'
-          })
-        }
-      })
-      .catch(err => {
-        console.error(err)
-        response.status(500).send({
-          message: 'Something went wrong'
+    }
+    else {
+      User
+        .findOne({
+          where: {
+            name: request.body.name,
+          }
         })
-      })
-    response.send({
-      jwt: toJWT({ userId: 1 })
-    })
-  }
-})
+        .then(entity => {
 
+          if (!entity) {
+            return response.status(400).send({
+              message: 'User with that name does not exist'
+            })
+          }
+          if (bcrypt.compareSync(request.body.password, entity.password)) {
 
+            response.send({
+              jwt: toJWT({ userId: entity.id })
+            })
+          } else {
+            response.status(400).send({
+              message: "Wrong again"
+            })
+          }
+        })
 
+    }
+  })
 module.exports = router

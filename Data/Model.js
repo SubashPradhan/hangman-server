@@ -2,7 +2,7 @@ const Sequelize = require('sequelize')
 const db = require('../db')
 
 const Game = db.define(
-  'game',
+  'games',
   {
     name: Sequelize.STRING,
     status: Sequelize.STRING
