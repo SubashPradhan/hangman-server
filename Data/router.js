@@ -42,6 +42,19 @@ router.post('/user',
     response.json(entity)
   })
 
+router.post('/game',
+  async(request, response) => {
+    const game = await Game.create(request.body)
+    const games = await Game.findAll({
+      include: [User]
+    })
+    const data = JSON.stringify(games)
+    stream.send(data)
+ 
+    response.send(game)
+  }
+ )  
+
 router.post('/login',
   async (request, response) => {
     if (!request.body.name || !request.body.password) {
@@ -77,4 +90,5 @@ router.post('/login',
 
     }
   })
+
 module.exports = router
