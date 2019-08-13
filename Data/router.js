@@ -38,7 +38,9 @@ router.post('/user',
       incorrectWord
     })
 
-    response.json(entity)
+    const data = JSON.stringify(entity)
+    stream.send(data)
+    response.send(entity)
   })
 
 router.post('/game',
@@ -54,18 +56,6 @@ router.post('/game',
   }
  )  
 
-router.post('/game',
- async(request, response) => {
-   const game = await Game.create(request.body)
-   const games = await Game.findAll({
-     include: [User]
-   })
-   const data = JSON.stringify(games)
-   stream.send(data)
-
-   response.send(game)
- }
-)
 
 router.post('/login',
   async (request, response) => {
