@@ -3,7 +3,7 @@ const stream = new Sse()
 const bcrypt = require('bcrypt')
 const { toJWT, toData } = require('./jwt')
 const { Router } = require('express')
-const { Game, User } = require('./Model')
+const { Game, User } = require('./model')
 const router = new Router
 
 router.get('/stream',
@@ -51,22 +51,35 @@ router.post('/user',
   }
 )
 
+router.post('/game',
+ async(request, response) => {
+   const game = await Game.create(request.body)
+   const games = await Game.findAll({
+     include: [User]
+   })
+   const data = JSON.stringify(games)
+   stream.send(data)
+
+   response.send(game)
+ }
+)
+
 router.post('/login',
 async (request, response) => {
   //request.body.email !== '' && request.body.password !== ''
-  if (request.body.email, request.body.password !== '') {
+  if (!request.body.name || !request.body.password) {
     response.status(400).send({
-      message: 'Please supply a valid email and password'
+      message: 'Please supply a valid name and password'
     })
   }
   else {
     User
       .findOne({
         where: {
-          email: request.body.email,
+          name: request.body.name,
         }
       })
-      await (entity => {
+      .then (entity => {
         if (!entity) {
           response.status(400).send({
             message: 'User with that email does not exist'
