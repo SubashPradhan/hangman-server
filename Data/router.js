@@ -4,6 +4,7 @@ const bcrypt = require('bcrypt')
 const { toJWT, toData } = require('./jwt')
 const { Router } = require('express')
 const { Game, User } = require('./Model')
+const  {verifyToken} = require('./verifyToken')
 const router = new Router
 
 router.get('/stream',
@@ -43,7 +44,7 @@ router.post('/user',
     response.send(entity)
   })
 
-router.post('/game',
+router.post('/game', verifyToken,
   async(request, response) => {
     const game = await Game.create(request.body)
     const games = await Game.findAll({
