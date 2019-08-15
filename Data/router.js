@@ -39,19 +39,22 @@ router.post('/user',
       incorrectWord
     })
 
-    const data = JSON.stringify(entity)
-    stream.send(data)
     response.send(entity)
+  }
+)
+
+async function update () {
+  const games = await Game.findAll({
+    include: [User]
   })
+  const data = JSON.stringify(games)
+  stream.send(data)
+}
 
 router.post('/game', verifyToken,
   async(request, response) => {
     const game = await Game.create(request.body)
-    const games = await Game.findAll({
-      include: [User]
-    })
-    const data = JSON.stringify(games)
-    stream.send(data)
+    await update()
  
     response.send(game)
   }
@@ -82,7 +85,8 @@ router.post('/login',
           if (bcrypt.compareSync(request.body.password, entity.password)) {
 
             response.send({
-              jwt: toJWT({ userId: entity.id })
+              jwt: toJWT({ userId: entity.id }),
+              name: entity.name
             })
           } else {
             response.status(400).send({
@@ -93,5 +97,20 @@ router.post('/login',
 
     }
   })
+
+router.put('/join', async (request, response) => {
+  console.log('request.body test:', request.body)
+  const { jwt, gameId } = request.body
+  const { userId } = toData(jwt)
+
+  const count = await User.update(
+    { gameId },
+    { where: { id: userId } }
+  )
+
+  await update()
+
+  response.send({ count })
+})
 
 module.exports = router
