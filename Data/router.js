@@ -29,8 +29,6 @@ router.post('/user',
       incorrectWord
     } = request.body
 
-    console.log('request.body test:', request.body)
-
     const entity = await User.create({
       name,
       password: bcrypt.hashSync(password, 10),
@@ -99,7 +97,6 @@ router.post('/login',
   })
 
 router.put('/join', async (request, response) => {
-  console.log('request.body test:', request.body)
   const { jwt, gameId } = request.body
   const { userId } = toData(jwt)
 
@@ -107,9 +104,7 @@ router.put('/join', async (request, response) => {
     { gameId },
     { where: { id: userId } }
   )
-
   await update()
-
   response.send({ count })
 })
 
