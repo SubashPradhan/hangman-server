@@ -19,6 +19,6 @@
     "json-sse": "0.0.0",
     "jsonwebtoken": "^8.5.1",
     "pg": "^7.12.1",
-    "sequelize": "^5.13.1"
+    "sequelize": "^5.15.1"
   }
 }
